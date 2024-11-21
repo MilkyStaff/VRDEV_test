@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using RenderHeads.Media.AVProVideo;
 using System;
 using System.Collections.Generic;
@@ -12,10 +11,12 @@ using static ResourseHelper;
 public class ScrollViewGallery : MonoBehaviour
 {
     private const float DEFAULT_PREVIEW_SIZE = 25;
+    private const float REQUEST_TIME_OUT = 5;
+
+    [SerializeField] private PreviewVisual simplePreviewPrefab;
 
     [SerializeField] private VerticalLayoutGroup verticalLayoutGroup;
     [SerializeField] private RectTransform scrollContentRoot;
-    [SerializeField] private PreviewVisual simplePreviewPrefab;
 
     [SerializeField] private Text videoDescription;
 
@@ -51,21 +52,22 @@ public class ScrollViewGallery : MonoBehaviour
         if (!TryGetTexture(filename, PreviewWidth, PreviewHeight, out Texture2D texture))
         {
             var timeOutToken = new CancellationTokenSource();
-            timeOutToken.CancelAfterSlim(TimeSpan.FromSeconds(5));
+            timeOutToken.CancelAfterSlim(TimeSpan.FromSeconds(REQUEST_TIME_OUT));
             var token = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy(), timeOutToken.Token);
 
             texture = await GetTextureByUrl(url, token.Token);
             SaveImage(texture, filename);
         }
+
         previewVisual.SetImage(texture);
     }
 
-    private void SetVideo(MediaPlayer mediaPlayer, string mediaPath, string name, bool autoPlay = false )
+    private void SetVideo(MediaPlayer mediaPlayer, string mediaPath, string mediaName, bool autoPlay = false )
     {
         if (mediaPlayer.MediaPath.Path != mediaPath)
         {
             mediaPlayer.OpenMedia(new MediaPath(mediaPath, MediaPathType.AbsolutePathOrURL), autoPlay);
-            videoDescription.text = name;
+            videoDescription.text = mediaName;
         }
     }
 }

@@ -8,12 +8,11 @@ public class PreviewVisual : MonoBehaviour
     [SerializeField] private Image image;
     [SerializeField] private Button button;
 
-    private string _MainDataUrl;
     private Sequence awaitingAnimation;
 
-    public void Init(Action onClickAction)
+    public void Init(Action onPreviewClickAction)
     {
-        button.onClick.AddListener(() => onClickAction());
+        button.onClick.AddListener(() => onPreviewClickAction());
         StartLoadingAnimation(() => image.transform.rotation = Quaternion.identity);
     }
 
@@ -26,7 +25,14 @@ public class PreviewVisual : MonoBehaviour
     private void StartLoadingAnimation(Action callback)
     {
         awaitingAnimation = DOTween.Sequence();
-        awaitingAnimation.Append(image.transform.DORotate(new Vector3(0, 0, -360), 2, RotateMode.FastBeyond360).SetEase(Ease.InOutSine).SetLoops(int.MaxValue, LoopType.Restart))
+        awaitingAnimation.Append(image.transform.DORotate(new Vector3(0, 0, -360), 2, RotateMode.FastBeyond360)
+                                                .SetEase(Ease.InOutSine)
+                                                .SetLoops(int.MaxValue, LoopType.Restart))
             .OnComplete(() => callback?.Invoke());
+    }
+
+    private void OnDestroy()
+    {
+        button.onClick.RemoveAllListeners();
     }
 }

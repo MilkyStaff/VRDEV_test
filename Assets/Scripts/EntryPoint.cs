@@ -1,4 +1,3 @@
-using DG.Tweening;
 using RenderHeads.Media.AVProVideo;
 using System.Collections.Generic;
 using System.IO;
@@ -24,19 +23,15 @@ public class EntryPoint : MonoBehaviour
 
         mediaPlayer.Events.AddListener(OnMediaPlayerEvent);
 
-        playButton.button.onClick.AddListener(() => OnButtonClick(mediaPlayer));
+        playButton.button.onClick.AddListener(OnPlayButtonClick);
     }
 
-    private void OnButtonClick(MediaPlayer mediaPlayer)
+    private void OnPlayButtonClick()
     {
         if (mediaPlayer.Control.IsPlaying())
             mediaPlayer.Pause();
         else
             mediaPlayer.Play();
-    }
-    private void OnDestroy()
-    {
-        mediaPlayer.Events.RemoveListener(OnMediaPlayerEvent);
     }
 
     private void OnMediaPlayerEvent(MediaPlayer mediaPlayer, MediaPlayerEvent.EventType eventType, ErrorCode errorCode)
@@ -52,6 +47,7 @@ public class EntryPoint : MonoBehaviour
                 break;
         }
     }
+
     private bool TryGetJsonData(string path, out List<JSONData> datas)
     {
         datas = new List<JSONData>();
@@ -65,5 +61,10 @@ public class EntryPoint : MonoBehaviour
         }
 
         return datas.Count > 0;
+    }
+    private void OnDestroy()
+    {
+        mediaPlayer.Events.RemoveListener(OnMediaPlayerEvent);
+        playButton.button.onClick.RemoveListener(OnPlayButtonClick);
     }
 }
